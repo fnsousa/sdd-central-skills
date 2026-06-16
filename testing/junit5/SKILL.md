@@ -1,0 +1,62 @@
+---
+name: junit5
+description: Write, improve, or review Java tests with JUnit 5 in a spec driven development workflow with Speckit. Use for unit tests, parameterized tests, nested test organization, assertions, lifecycle setup, display names, boundary cases, acceptance criteria coverage, and Java 21 test idioms.
+---
+
+# JUnit 5
+
+Use this skill to translate Speckit scenarios and acceptance criteria into clear, maintainable JUnit 5 tests.
+
+## Workflow
+
+1. Read the spec and list observable behaviors before writing tests.
+2. Pick the smallest useful test scope: domain unit, application service, adapter slice, or integration.
+3. Name tests with behavior language from the spec.
+4. Structure each test as arrange, act, assert, even when comments are not needed.
+5. Cover success, validation, boundary, and failure paths explicitly.
+6. Prefer deterministic inputs: fixed clocks, fixed IDs, and stable data builders.
+
+## Test Style
+
+- Use `@DisplayName` on classes for business context.
+- Use method names or `@DisplayName` to describe expected behavior.
+- Use `@Nested` to group scenarios by rule, state, or use case branch.
+- Use AssertJ if the project already uses it; otherwise use JUnit assertions consistently.
+- Use `assertAll` when several independent facts describe the same outcome.
+- Use `assertThrows` for expected exceptions, then assert meaningful exception details.
+- Avoid testing private methods. Test behavior through public use case or domain APIs.
+
+## Parameterized Tests
+
+Use parameterized tests for equivalent behavior across many inputs:
+
+```java
+@ParameterizedTest
+@CsvSource({
+    "BRL, 1000",
+    "USD, 2500"
+})
+void acceptsSupportedCurrencies(String currency, long amountInCents) {
+    var command = new CreatePaymentCommand(currency, amountInCents);
+
+    var result = useCase.create(command);
+
+    assertTrue(result.isAccepted());
+}
+```
+
+Prefer `@MethodSource` when inputs are rich objects or expected outcomes need names.
+
+## SDD Coverage Checklist
+
+- Each acceptance criterion has at least one test.
+- Each business rule has a direct domain or application-level test.
+- Edge cases in the spec are represented with explicit test data.
+- Failure behavior asserts the observable contract, not incidental implementation details.
+- Tests fail for the right reason when the implementation violates the spec.
+
+## Java 21 Notes
+
+- Use records for compact test fixtures and command objects when they clarify intent.
+- Use `List.of`, `Map.of`, and local `var` where the expected type is obvious.
+- Keep test data builders readable; do not hide business-relevant values behind too much abstraction.
